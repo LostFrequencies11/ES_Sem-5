@@ -4,7 +4,7 @@
 #include <DHT.h>
 #include <Adafruit_BMP280.h>
 
-// Pin Definitions
+// Pin Definitions..mew
 #define DHTPIN 25  
 #define DHTTYPE DHT11
 #define SS 5
