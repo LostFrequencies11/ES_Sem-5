@@ -11,7 +11,6 @@
 #define RST 14
 #define DIO0 2
 
-// Sensor Objects
 DHT dht(DHTPIN, DHTTYPE);
 Adafruit_BMP280 bmp;
 

@@ -10,6 +10,7 @@
 #define DIO0 2
 #define BUTTON_MODE 32
 #define BUTTON_SELECT 33
+#define BUZZER 25  // Buzzer pin
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -35,6 +36,8 @@ void setup() {
     Serial.begin(115200);
     pinMode(BUTTON_MODE, INPUT_PULLUP);
     pinMode(BUTTON_SELECT, INPUT_PULLUP);
+    pinMode(BUZZER, OUTPUT);
+    digitalWrite(BUZZER, LOW);  // Ensure buzzer is off at startup
 
     if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
         Serial.println("OLED Init Failed!");
@@ -103,9 +106,14 @@ void receiveData() {
         } else {
             char identifier;
             sscanf(lastReceivedData.c_str(), "%c,%lf,%lf,%d", &identifier, &lastLat, &lastLon, &lastRSSI);
-
-            // Corrected: Get RSSI **after** packet reception
             lastRSSI = LoRa.packetRssi();
+        }
+
+        // Check RSSI and trigger buzzer if weak signal
+        if (lastRSSI < -100) {
+            digitalWrite(BUZZER, HIGH);  // Turn on buzzer
+        } else {
+            digitalWrite(BUZZER, LOW);   // Turn off buzzer
         }
     }
 }
@@ -138,13 +146,13 @@ void displayGPSData() {
     display.println("GPS Tracker:");
 
     display.setCursor(0, 10);
-    display.print("Lat: "); display.print("00.000");
+    display.print("Lat: "); display.print(lastLat, 6);
     display.setCursor(0, 20);
-    display.print("Lon: "); display.print("00.000");
+    display.print("Lon: "); display.print(lastLon, 6);
     display.setCursor(0, 30);
     display.print("RSSI: "); display.print(lastRSSI);
     display.setCursor(0, 40);
-    display.print("satallites: 0");
+    display.print("Satellites: 0");
 
     if (millis() - lastPacketTime > displayTimeout) {
         display.setCursor(0, 50);
@@ -162,3 +170,4 @@ float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
     float c = 2 * atan2(sqrt(a), sqrt(1-a));
     return R * c;
 }
+ t
